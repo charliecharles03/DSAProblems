@@ -1,13 +1,17 @@
-#include<bits/stdc++.h> //un
+#include<bits/stdc++.h> 
+#include <iostream>
+#include <sstream>
 #include <vector>
 
+
+//advent of code day 2 i know I am lame don't need to write that in chat f**kers
 #define ll long long 
 using namespace std;
 
 class Console{
     public:
         void log(string s){
-           cout<<s<<endl;
+            cout<<s<<endl;
         }
 
         void log(int i){
@@ -24,30 +28,131 @@ class Console{
 
 
 Console console;
-void solve(){
-    vector<int> input = {5,3,4}; // 1 3 6 13 18  target
-    int target = 8;
-    int left = 0;
-    int right = 0;
-    int sum = 0;
-    vector<int> ans;
-    for(int i =0;i<input.size();i++){
-        sum+= input[i];
-        while(sum >= target){
-            if(sum == target){
-                console.log(left+1);
-                console.log(i+1);
-                ans.push_back(left+1);
-                ans.push_back((i+1));
-                break;
-            }
-            sum -= input[left];
+
+/*
+   The levels are either all increasing or all decreasing. [ check this will that
+   make the next one effecient]
+   Any two adjacent levels differ by at least one and at most three. []
+
+
+// check if the array is strictly increasing or decreasing
+// check the difference between 2 adj numbers being greater 1 and almost 3 
+// diff > 1 && diff <= 3 
+// 
+*/
+
+
+bool isIncreasing(vector<int>& vec){ // this only say that it is increasing
+    bool ans = true;
+    for(int i=1;i<vec.size();i++){
+        if(vec[i] > vec[i-1]){
+            continue;
+        }
+        else{
+            ans = false;
         }
     }
-    if(ans.size() == 0){
-        ans.push_back(-1);
+    return ans;
+}
+
+bool isDecreasing(vector<int>& vec){ // this only say that it is increasing
+    bool ans = true;
+    for(int i=1;i<vec.size();i++){
+        if(vec[i] < vec[i-1]){
+            continue;
+        }
+        else{
+            ans = false;
+        }
     }
-    console.log(ans);
+    return ans;
+}
+
+bool secondTry(vector<int>& vec){
+    bool ans = true;
+    for(int i=1;i<vec.size();i++){
+        int diff = abs(vec[i] - vec[i-1]);
+        if(diff >=1 && diff<=3){
+            continue;
+        }
+        else{
+            ans = false;
+        }
+    }
+    return ans;
+}
+
+bool  goCheckForDiff(vector<int>& vec){
+    bool ans = true;
+    int number_of_f = 0;
+    // 1 3 2 4 8
+    // if there is a unsafe rec 1 with 2
+    vector<int> sec;
+    for(int i=1;i<vec.size();i++){
+        int diff = abs(vec[i]-vec[i-1]);
+        int backdiff = abs(vec[i+1] - vec[i-1]);
+        if(diff >= 1 && diff <=3){
+            sec.push_back(vec[i]);
+            continue;
+        }
+        else{
+           if(number_of_f<2)  {
+               sec.push_back(vec[i]);
+           }
+           number_of_f++;
+        }
+    }
+    if(number_of_f > 1 && secondTry(sec) == false){
+        ans = false;
+    }
+    return ans;
+}
+
+void solve(){
+
+    ifstream inputFile("./smallinput.txt"); // Replace "input.txt" with your file name
+    vector<vector<int>> input_value;
+
+    if (!inputFile) {
+        cerr << "Error opening file!" << endl;
+        return;
+    }
+
+    vector<int> numbers; // To store integers read from the file
+    string line;
+    int num;
+
+    // Read integers from the file
+    while (getline(inputFile,line)) {
+        stringstream ss(line);
+        vector<int>row;
+        int num;
+        while(ss >> num){
+            row.push_back(num);
+        }
+        input_value.push_back(row);
+    }
+
+    // Close the file
+    inputFile.close();
+    int count = 0;
+    for(auto i : input_value){
+        bool currentRes = isIncreasing(i) || isDecreasing(i);
+        if(currentRes){
+            console.log("entering here");
+            bool ans = goCheckForDiff(i);
+            count += ans?1:0;
+        }
+        
+        for(auto j : i){
+            cout<<j<<" ";
+        }
+        cout<<endl;
+    }
+    // Display the integers
+    console.log(count);
+    return ;
+
 }  
 
 
